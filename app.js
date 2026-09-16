@@ -2,16 +2,18 @@ const SUPABASE_URL = 'https://cdcngtfcxeelcjootkdw.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_4xQUNkaMSvAfaygACGLrCg_p3mF6RTV';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-
 let carsData = JSON.parse(localStorage.getItem('beltfind_data') || '[]');
 let selectedCarIds = new Set();
 let editingCarId = null;
 
-// لیست‌های ثابت شما
 const CATEGORIES = ['کولر', 'هیدرولیک', 'دینام', 'تایم', 'پروانه'];
 const MODELS = ['A', 'AX', 'B', 'BX', 'C', 'CX', 'PK'];
 
-// مدیریت ورود و خروج
+// ثبت Service Worker برای قابلیت آفلاین
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   checkAuth();
 });
@@ -25,7 +27,7 @@ async function checkAuth() {
     loginView.style.display = 'none';
     appView.style.display = 'block';
     updateStats();
-    renderCards(carsData);
+    handleSearch();
   } else {
     loginView.style.display = 'flex';
     appView.style.display = 'none';
@@ -50,7 +52,6 @@ document.getElementById('logoutBtn')?.addEventListener('click', async () => {
   checkAuth();
 });
 
-// تعویض صفحه (از کدهای خودتان)
 function switchPage(pageName, btn) {
   document.querySelectorAll('.content-page').forEach(p => p.classList.remove('active-page'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -61,10 +62,11 @@ function switchPage(pageName, btn) {
 
   if (pageName === 'search') {
     handleSearch();
+  } else if (pageName === 'home') {
+    updateStats();
   }
 }
 
-// رندر کارت‌ها (دقیقاً کدهای اصلی خودتان)
 function renderCards(list) {
   const container = document.getElementById('search-results');
   if (!container) return;
@@ -81,7 +83,7 @@ function renderCards(list) {
     card.className = `car-card ${isSelected ? 'selected' : ''}`;
     card.id = `car-card-${car.id}`;
 
-    let beltsHtml = car.belts.map(b => `
+    let beltsHtml = (car.belts || []).map(b => `
       <div class="belt-item d-flex justify-content-between align-items-center my-1">
         <span><strong>${b.category || 'تسمه'}:</strong></span>
         <span class="badge bg-light text-dark border font-monospace">${b.model || ''} ${b.size || '-'}</span>
@@ -94,11 +96,11 @@ function renderCards(list) {
           <input type="checkbox" class="form-check-input" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleSelectCar('${car.id}')">
           <span class="fw-bold fs-6">${car.name}</span>
           
-          <button class="btn btn-sm btn-light border-0 text-primary p-1 ms-1" title="ارسال متن" onclick="event.stopPropagation(); shareAsText(carsData.find(c => c.id === '${car.id}'))">
+          <button class="btn btn-sm btn-light border-0 text-primary p-1 ms-1" title="ارسال متن" onclick="event.stopPropagation(); shareAsText('${car.id}')">
             <i class="bi bi-send-fill fs-6"></i>
           </button>
           
-          <button class="btn btn-sm btn-light border-0 text-success p-1" title="ارسال عکس" onclick="event.stopPropagation(); shareAsImage(carsData.find(c => c.id === '${car.id}'))">
+          <button class="btn btn-sm btn-light border-0 text-success p-1" title="ارسال عکس" onclick="event.stopPropagation(); shareAsImage('${car.id}')">
             <i class="bi bi-image-fill fs-6"></i>
           </button>
         </div>
@@ -176,15 +178,14 @@ function updateBatchBar() {
 
 function handleSearch() {
   const searchInput = document.getElementById('search-input');
-  if (!searchInput) return;
-  const query = searchInput.value.trim().toLowerCase();
+  const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
   if (!query) {
     renderCards(carsData);
     return;
   }
   const filtered = carsData.filter(car => {
     const matchName = car.name.toLowerCase().includes(query);
-    const matchBelt = car.belts.some(b => 
+    const matchBelt = (car.belts || []).some(b => 
       (b.category && b.category.toLowerCase().includes(query)) ||
       (b.model && b.model.toLowerCase().includes(query)) ||
       (b.size && b.size.toLowerCase().includes(query))
@@ -266,8 +267,8 @@ function saveCar(e) {
   let belts = [];
 
   beltRows.forEach(row => {
-    const cat = row.querySelector('.b-cat').value;
-    const mod = row.querySelector('.b-mod').value;
+    const cat = row.querySelector('.b-cat').value || '';
+    const mod = row.querySelector('.b-mod').value || '';
     const siz = row.querySelector('.b-siz').value.trim();
     if (siz) {
       belts.push({ category: cat, model: mod, size: siz });
@@ -376,8 +377,10 @@ function exportExcel() {
   a.click();
 }
 
-async function shareAsText(car) {
+async function shareAsText(carId) {
+  const car = carsData.find(c => c.id === carId);
   if (!car) return;
+  
   let text = `🚗 مشخصات تسمه‌های خودرو: ${car.name}\n`;
   text += `---------------------------\n`;
   if (car.belts) {
@@ -391,10 +394,7 @@ async function shareAsText(car) {
 
   if (navigator.share) {
     try {
-      await navigator.share({
-        title: `تسمه‌های ${car.name}`,
-        text: text
-      });
+      await navigator.share({ title: `تسمه‌های ${car.name}`, text: text });
     } catch (err) {}
   } else {
     navigator.clipboard.writeText(text);
@@ -402,7 +402,8 @@ async function shareAsText(car) {
   }
 }
 
-async function shareAsImage(car) {
+async function shareAsImage(carId) {
+  const car = carsData.find(c => c.id === carId);
   if (!car) return;
   
   if (typeof html2canvas === 'undefined') {
