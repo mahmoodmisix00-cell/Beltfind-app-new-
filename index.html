@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تسمه یاب | BeltFind</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  
+  <!-- کتابخانه‌ها -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- صفحه لاگین اضافه شده -->
+  <div id="loginView" class="login-wrapper">
+    <div class="login-card">
+      <div class="logo-box">
+        <img src="logo.png" alt="KODIR Logo" class="login-logo">
+      </div>
+      <h2 class="app-title">تسمه یاب | BeltFind</h2>
+      <div class="address-badge">
+        📍 تهران، ملت، آذرتوس، پاساژ مهدی، زیرزمین، پلاک ۲
+      </div>
+      <form id="loginForm">
+        <div class="custom-input-group">
+          <label for="loginEmail">ایمیل</label>
+          <input type="email" id="loginEmail" class="custom-input" placeholder="example@email.com" required>
+        </div>
+        <div class="custom-input-group">
+          <label for="loginPassword">رمز عبور</label>
+          <input type="password" id="loginPassword" class="custom-input" placeholder="رمز عبور" required>
+        </div>
+        <button type="submit" class="btn-submit">ورود</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- برنامه اصلی شما -->
+  <div id="appView" style="display: none;">
+    <!-- هدر وسط چین -->
+    <header class="top-header">
+      <div class="logo-center">
+        <i class="bi bi-gear-wide-connected text-primary"></i>
+        <span class="fw-bold">تسمه یاب</span>
+        <span class="badge bg-primary ms-1">BeltFind</span>
+      </div>
+      <button id="logoutBtn" class="btn btn-sm btn-outline-danger position-absolute start-0 ms-3">خروج</button>
+    </header>
+
+    <div class="app-container">
+
+      <!-- صفحه خانه -->
+      <div id="page-home" class="content-page active-page">
+        <div class="welcome-card mb-3 text-center">
+          <h5>مدیریت هوشمند تسمه‌های خودرو</h5>
+          <p class="text-muted small mb-3">خودروها و تسمه‌ها را به‌راحتی ثبت، جستجو و مدیریت کنید.</p>
+          <div class="d-flex justify-content-center gap-2">
+            <button class="btn btn-outline-success btn-sm d-flex align-items-center gap-1" onclick="exportExcel()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2"/><path d="M14 17l-6-6"/><path d="M8 17l6-6"/></svg>
+              <span>خروجی Excel</span>
+            </button>
+            <button class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1" onclick="backupData()">
+              <i class="bi bi-download"></i>
+              <span>بکاپ</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="row g-2 mb-3">
+          <div class="col-6">
+            <div class="stat-box text-center">
+              <span class="stat-num" id="stat-cars">0</span>
+              <span class="stat-label">تعداد خودروها</span>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="stat-box text-center">
+              <span class="stat-num" id="stat-belts">0</span>
+              <span class="stat-label">تعداد تسمه‌ها</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- صفحه جستجو -->
+      <div id="page-search" class="content-page">
+        <div class="search-box mb-3">
+          <label class="form-label fw-bold">جستجوی پیشرفته</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" id="search-input" class="form-control" placeholder="نام خودرو، دسته، مدل یا سایز..." oninput="handleSearch()">
+          </div>
+        </div>
+
+        <!-- لیست کارت‌ها -->
+        <div id="search-results" class="cards-list"></div>
+      </div>
+
+      <!-- صفحه افزودن / ویرایش -->
+      <div id="page-add" class="content-page">
+        <div class="card p-3 shadow-sm border-0">
+          <h6 class="fw-bold mb-3" id="form-title">افزودن خودرو جدید</h6>
+          <div id="edit-notice" class="alert alert-warning py-1 px-2 small d-none">در حال ویرایش خودرو هستید</div>
+          <form id="car-form" onsubmit="saveCar(event)">
+            <div class="mb-2">
+              <label class="form-label small fw-bold">نام خودرو</label>
+              <input type="text" id="car-name" class="form-control form-control-sm" required placeholder="مثال: پژو پارس">
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center mt-3 mb-2">
+              <span class="fw-bold small">تسمه‌ها</span>
+              <button type="button" class="btn btn-sm btn-outline-primary" onclick="addBeltRow()">+ افزودن تسمه</button>
+            </div>
+
+            <div id="belts-container"></div>
+
+            <div class="d-flex gap-2 mt-3">
+              <button type="submit" class="btn btn-primary btn-sm flex-grow-1">ذخیره</button>
+              <button type="button" class="btn btn-light btn-sm" onclick="resetForm()">انصراف</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- منوی عملیات گروهی -->
+    <div id="batch-bar" class="batch-bar">
+      <div class="d-flex align-items-center justify-content-between w-100">
+        <span class="badge bg-primary" id="selected-count">0 مورد انتخاب شد</span>
+        <div class="d-flex gap-1">
+          <button class="btn btn-sm btn-light" onclick="selectAllCards()">انتخاب همه</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteSelectedCards()">حذف</button>
+          <button class="btn btn-sm btn-outline-light" onclick="deselectAllCards()">لغو</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ناوبری پایین -->
+    <nav class="bottom-nav">
+      <button class="nav-btn active" onclick="switchPage('home', this)">
+        <i class="bi bi-house"></i>
+        <span>خانه</span>
+      </button>
+      <button class="nav-btn" onclick="switchPage('search', this)">
+        <i class="bi bi-search"></i>
+        <span>جستجو</span>
+      </button>
+      <button class="nav-btn" onclick="switchPage('add', this)">
+        <i class="bi bi-plus-circle"></i>
+        <span>افزودن</span>
+      </button>
+    </nav>
+
+    <!-- لودر و توست -->
+    <div id="toast" class="toast-custom"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
