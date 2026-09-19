@@ -1,0 +1,359 @@
+:root {
+  --primary-color: #2563eb;
+  --bg-color: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #1e293b;
+  --border-color: #e2e8f0;
+}
+
+body {
+  font-family: 'Vazirmatn', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+  direction: rtl;
+  padding-top: 60px;
+  padding-bottom: 75px;
+}
+
+/* حل کامل مشکل اسکرول لاگین */
+body:has(#loginView:not([style*="display: none"])) {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  overflow: hidden !important;
+}
+
+/* استایل‌های لاگین */
+.login-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100dvh;
+  background-color: #eaf2ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.login-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 360px;
+  border-radius: 24px;
+  padding: 28px 20px;
+  text-align: center;
+  box-shadow: 0 12px 32px rgba(37, 99, 235, 0.12);
+  box-sizing: border-box;
+}
+
+.logo-box {
+  width: 80px;
+  height: 80px;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.logo-box:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.18);
+  border-color: #2563eb;
+}
+
+.login-logo {
+  width: 55px;
+  height: auto;
+  object-fit: contain;
+}
+
+.app-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+}
+
+.address-badge {
+  background-color: #f1f5f9;
+  color: #64748b;
+  font-size: 0.72rem;
+  padding: 8px 10px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.custom-input-group {
+  text-align: right;
+  margin-bottom: 14px;
+}
+
+.custom-input-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #475569;
+  margin-bottom: 5px;
+}
+
+.custom-input {
+  width: 100%;
+  border-radius: 12px;
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.9rem;
+  background-color: #f8fafc;
+  box-sizing: border-box;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.custom-input:focus {
+  background-color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.btn-submit {
+  width: 100%;
+  border-radius: 12px;
+  padding: 12px;
+  background-color: #1d6bf3;
+  color: #ffffff;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: all 0.25s ease;
+}
+
+/* هدر اصلی شما */
+.top-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 55px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.logo-center {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.1rem;
+}
+
+.app-container {
+  padding: 15px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.content-page {
+  display: none;
+}
+.content-page.active-page {
+  display: block;
+}
+
+/* آکاردئون و کارت‌های اصلی شما */
+.car-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  background-color: #ffffff;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.car-card.selected {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.car-card.open {
+  border-color: #3b82f6;
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.1), 0 4px 6px -4px rgba(59, 130, 246, 0.05);
+}
+
+.car-header {
+  padding: 12px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  background-color: #fff;
+  user-select: none;
+}
+
+.car-header:hover {
+  background-color: #f1f5f9;
+}
+
+.icon-arrow {
+  display: inline-block;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.car-card.open .icon-arrow {
+  transform: rotate(180deg);
+}
+
+.car-body {
+  max-height: 0;
+  opacity: 0;
+  padding: 0 12px !important;
+  overflow: hidden;
+  border-top: 1px solid transparent !important;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.25s ease-in-out,
+              padding 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s ease;
+}
+
+.car-card.open .car-body {
+  max-height: 500px;
+  opacity: 1;
+  padding: 10px 12px !important;
+  border-top-color: #f1f5f9 !important;
+}
+
+.belt-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #edf2f7;
+  font-size: 0.88rem;
+}
+.belt-item:last-child {
+  border-bottom: none;
+}
+
+/* منوی عملیات گروهی و ناوبری شما */
+.batch-bar {
+  position: fixed;
+  bottom: 65px;
+  left: 15px;
+  right: 15px;
+  max-width: 570px;
+  margin: 0 auto;
+  background: #1e293b;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 12px;
+  display: none;
+  align-items: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  z-index: 990;
+}
+
+.batch-bar.show {
+  display: flex;
+  animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: var(--card-bg);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.75rem;
+  gap: 2px;
+  cursor: pointer;
+}
+
+.nav-btn.active {
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.nav-btn i {
+  font-size: 1.2rem;
+}
+
+.stat-box {
+  background: #fff;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+}
+.stat-num {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+.stat-label {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.welcome-card {
+  background: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.toast-custom {
+  position: fixed;
+  bottom: 75px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f172a;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  display: none;
+  z-index: 2000;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
