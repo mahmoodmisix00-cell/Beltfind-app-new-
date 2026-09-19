@@ -310,38 +310,49 @@ async function saveCar(e) {
   const submitBtn = document.querySelector('#car-form button[type="submit"]');
   if (submitBtn) submitBtn.disabled = true;
 
-  if (editingCarId) {
-    const { error } = await supabaseClient
-      .from('cars')
-      .update({ name: carName, belts })
-      .eq('id', editingCarId);
+  try {
+    if (editingCarId) {
+      const { error } = await supabaseClient
+        .from('cars')
+        .update({ name: carName, belts })
+        .eq('id', editingCarId);
 
-    if (submitBtn) submitBtn.disabled = false;
-    if (error) {
-      console.error('update car error:', error);
-      showToast('خطا در ذخیره‌سازی');
-      return;
-    }
-    showToast('ویرایش انجام شد');
-  } else {
-    const { data: userData } = await supabaseClient.auth.getUser();
-    const { error } = await supabaseClient
-      .from('cars')
-      .insert({ name: carName, belts, user_id: userData.user.id });
+      if (error) {
+        console.error('update car error:', error);
+        showToast('خطا در ذخیره‌سازی');
+        return;
+      }
+      showToast('ویرایش انجام شد');
+    } else {
+      const { data: userData, error: userError } = await supabaseClient.auth.getUser();
+      if (userError || !userData || !userData.user) {
+        console.error('getUser error:', userError);
+        showToast('خطا در احراز هویت - دوباره لاگین کنید');
+        return;
+      }
 
-    if (submitBtn) submitBtn.disabled = false;
-    if (error) {
-      console.error('insert car error:', error);
-      showToast('خطا در ذخیره‌سازی');
-      return;
+      const { error } = await supabaseClient
+        .from('cars')
+        .insert({ name: carName, belts, user_id: userData.user.id });
+
+      if (error) {
+        console.error('insert car error:', error);
+        showToast('خطا در ذخیره‌سازی');
+        return;
+      }
+      showToast('خودرو ذخیره شد');
     }
-    showToast('خودرو ذخیره شد');
+
+    await loadCars();
+    resetForm();
+    updateStats();
+    switchPage('search', document.querySelectorAll('.nav-btn')[1]);
+  } catch (err) {
+    console.error('saveCar unexpected error:', err);
+    showToast('خطای غیرمنتظره - دوباره تلاش کنید');
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
   }
-
-  await loadCars();
-  resetForm();
-  updateStats();
-  switchPage('search', document.querySelectorAll('.nav-btn')[1]);
 }
 
 function editCar(id) {
@@ -381,7 +392,10 @@ function resetForm() {
   
   const container = document.getElementById('belts-container');
   if (container) container.innerHTML = '';
-  
+
+  const submitBtn = document.querySelector('#car-form button[type="submit"]');
+  if (submitBtn) submitBtn.disabled = false;
+
   addBeltRow();
 }
 
