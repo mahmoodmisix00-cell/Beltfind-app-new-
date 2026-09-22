@@ -35,7 +35,20 @@ if ('serviceWorker' in navigator) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  checkAuth();
+  const splashStart = Date.now();
+  const minSplashTime = 1100;
+
+  checkAuth().finally(() => {
+    const elapsed = Date.now() - splashStart;
+    const remaining = Math.max(0, minSplashTime - elapsed);
+    setTimeout(() => {
+      const splash = document.getElementById('splashScreen');
+      if (splash) {
+        splash.classList.add('splash-hide');
+        setTimeout(() => splash.remove(), 650);
+      }
+    }, remaining);
+  });
 });
 
 async function checkAuth() {
