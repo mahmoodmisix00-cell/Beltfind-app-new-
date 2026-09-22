@@ -357,3 +357,130 @@ body:has(#loginView:not([style*="display: none"])) {
 .cursor-pointer {
   cursor: pointer;
 }
+
+/* ===== اسپلش اسکرین انیمیشنی ===== */
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 35%, #eaf2ff 0%, #dbe8fe 45%, #c7dbfd 100%);
+  overflow: hidden;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+.splash-screen.splash-hide {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.splash-ring {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: var(--primary-color);
+  border-left-color: var(--primary-color);
+  animation: splash-spin 1.4s linear infinite;
+}
+
+.splash-ring::after {
+  content: '';
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  border: 1px solid rgba(37, 99, 235, 0.15);
+}
+
+.splash-logo-wrap {
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 30px rgba(37, 99, 235, 0.25);
+  animation: splash-pop 0.7s cubic-bezier(.34,1.56,.64,1) both,
+             splash-float 3s ease-in-out 0.7s infinite;
+  overflow: hidden;
+}
+
+.splash-logo {
+  width: 78%;
+  height: 78%;
+  object-fit: contain;
+  animation: splash-fade-in 0.6s ease 0.15s both;
+}
+
+.splash-title {
+  margin-top: 26px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: 1px;
+  opacity: 0;
+  animation: splash-rise 0.6s ease 0.45s forwards;
+}
+
+.splash-subtitle {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #64748b;
+  letter-spacing: 2px;
+  opacity: 0;
+  animation: splash-rise 0.6s ease 0.6s forwards;
+}
+
+.splash-dots {
+  margin-top: 22px;
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  animation: splash-rise 0.5s ease 0.8s forwards;
+}
+
+.splash-dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  animation: splash-bounce 1.2s ease-in-out infinite;
+}
+
+.splash-dots span:nth-child(2) { animation-delay: 0.15s; }
+.splash-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes splash-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes splash-pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes splash-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes splash-fade-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes splash-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes splash-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
