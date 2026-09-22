@@ -1,5 +1,5 @@
-const STATIC_CACHE = 'beltfind-static-v9';
-const CDN_CACHE = 'beltfind-cdn-v9';
+const STATIC_CACHE = 'beltfind-static-v10';
+const CDN_CACHE = 'beltfind-cdn-v10';
 
 const APP_FILES = [
   './',
